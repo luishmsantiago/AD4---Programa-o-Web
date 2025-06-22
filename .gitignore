@@ -3,6 +3,7 @@
 /.env
 /routes/professores_old.js
 /routes/cursos_old.js
+/off
 
 # Logs
 logs
