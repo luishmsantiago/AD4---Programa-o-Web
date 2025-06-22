@@ -1,0 +1,4 @@
+/node_modules
+/.env
+/routes/professores_old.js
+/routes/cursos_old.js

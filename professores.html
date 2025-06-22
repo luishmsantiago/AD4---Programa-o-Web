@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Professores</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="logo-titulo">
+      <img src="img/logo.png" alt="Logo do IFC" class="logo">
+      <h1 class="titulo">Cadastro de Professores</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="cursos.html">Cadastro de Cursos</a></li>
+        <li><a href="professores.html">Cadastro de Professores</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <button id="addProf">Adicionar Professor</button>
+      <table id="profTable">
+        <thead>
+          <tr>
+            <th>Codigo</th>
+            <th>Nome do Professor</th>
+            <th>E-mail</th>
+            <!-- <th>Sala</th> -->
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Professores serão inseridos aqui via JavaScript -->
+        </tbody>
+      </table>
+  </main>
+  <!-- Modal para Adicionar/Editar Professor -->
+  <div id="profModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Adicionar/Editar Professor</h2>
+      <form id="profForm">
+        <input type="hidden" id="codigo" name="codigo" required>
+        <label for="nomeProf">Nome do Professor:</label>
+        <input type="text" id="nomeProf" name="nomeProf" required>
+        <label for="email">E-mail:</label>
+        <input type="text" id="email" name="email" required>
+        <label for="sala">Sala:</label>
+        <input type="text" id="sala" name="sala">
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+  </div>
+  <script src="professores.js"></script>
+  <!-- <script src="cursos.js"></script> -->
+  <script src="footer.js"></script>
+  <!-- <script>
+    let profs = [];
+    let currentProfId = null;
+    
+    // Abrir modal
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
+    }
+
+    // Fechar modal
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Função para editar professor
+    function editProf(id) {
+      const prof = profs.find(p => p.id === id); // Tenta encontrar o professor
+
+      // VERIFICA SE O PROFESSOR FOI ENCONTRADO (prof será undefined se não)
+      if (!prof) { // Se prof é null ou undefined, significa que não foi encontrado
+        console.error("Erro: Professor com ID " + id + " não encontrado nos dados disponíveis.");
+        return; // Sai da função, pois não há o que preencher no modal
+      }
+
+      // Preenche os campos do formulário no modal
+      document.getElementById('codigo').value = prof.id; // Do BD 'id' para o input 'codigo'
+      document.getElementById('nomeProf').value = prof.nome; // Do BD 'nome' para o input 'nomeProf'
+      document.getElementById('email').value = prof.email; // Do BD 'email' para o input 'email'
+      document.getElementById('sala').value = prof.sala || ''; // Do BD 'sala' (se existir) para o input 'sala'
+
+      currentProfId = prof.id; // Armazena o ID do professor que está sendo editado
+      openModal('profModal'); // Abre o modal
+    }
+
+    // Função para excluir professor
+    function deleteProf(id) {
+      if (confirm('Tem certeza que deseja excluir este professor?')) {
+        fetch(`http://localhost:3000/professores/${id}`, {
+          method: 'DELETE'
+        })
+        .then(() => {
+          renderProf();
+        });
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Função para exibir professores na tabela
+    function renderProf() {
+        const tbody = document.querySelector('#profTable tbody');
+        tbody.innerHTML = '';
+
+        fetch('http://localhost:3000/professores')
+          .then(response => response.json())
+          .then(dataRecebidaDoBackend  => {
+            profs = dataRecebidaDoBackend;
+
+            profs.forEach((prof, index) => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td>${prof.id}</td>
+                <td>${prof.nome}</td>
+                <td>${prof.email}</td>
+                <td>
+                  <button onclick="editProf(${prof.id})">Editar</button>
+                  <button onclick="deleteProf(${prof.id})">Excluir</button>
+                </td>
+              `;
+              tbody.appendChild(row);
+            });
+          });
+      }
+
+      // Função para adicionar professor
+      function addProf(codigo, nomeProf, email) {
+        //const prof = { codigo, nomeProf, email, sala };
+        let professor = {codigo, nomeProf, email}
+        console.log(professor)
+
+        fetch('http://localhost:3000/professores', 
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(prof)
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Adicionado:', data);
+          renderProf();
+        });
+      }
+
+      // Botão "Adicionar Professor"
+      document.getElementById('addProf').addEventListener('click', function() {
+        currentProfId = null;
+        document.getElementById('profForm').reset();
+        openModal('profModal');
+      });
+
+      // Botões de fechar modais
+      document.querySelectorAll('.close').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          closeModal('profModal');
+        });
+      });
+
+      // Submissão do formulário
+      document.getElementById('profForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const codigo = document.getElementById('codigo').value;
+        const nomeProf = document.getElementById('nomeProf').value;
+        const email = document.getElementById('email').value;
+        const sala = document.getElementById('sala').value;
+
+        if (currentProfId !== null) {
+          // Atualizar professor
+          const prof = profs[currentProfId];
+          const atualizado = { codigo, nomeProf, email, sala };
+          fetch(`http://localhost:3000/professores/${prof.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(atualizado)
+          })
+          .then(response => response.json())
+          .then(() => {
+            closeModal('profModal');
+            renderProf();
+          });
+        } else {
+          // Adicionar novo
+          addProf(codigo, nomeProf, email, sala);
+          closeModal('profModal');
+        }
+      });
+
+      // Carrega professores ao iniciar
+      renderProf();
+    });
+
+  </script> -->
+</body>
+</html>

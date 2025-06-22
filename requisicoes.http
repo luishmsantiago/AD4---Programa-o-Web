@@ -1,0 +1,65 @@
+@apiurl = http://localhost:3000
+
+# get professores
+GET {{apiurl}}/professores HTTP/1.1
+//Content-Type: application/json
+
+## get professor
+GET {{apiurl}}/professores/8 HTTP/1.1
+
+### inserir professor
+POST {{apiurl}}/professores HTTP/1.1
+Content-Type: application/json
+
+{
+  "nome": "Daniel Anderle",
+  "email": "daniel.anderle@ifc.edu.br"
+}
+
+### alterar professor
+PUT {{apiurl}}/professores/11 HTTP/1.1
+Content-Type: application/json
+
+{
+  "nome": "Daniel Fernando Anderle",
+  "email": "daniel.anderle@ifc.edu.br"
+}
+
+### excluir professor
+DELETE {{apiurl}}/professores/8 HTTP/1.1
+Content-Type: application/json
+
+/////////////////////////////////
+
+# get cursos
+GET {{apiurl}}/cursos HTTP/1.1
+Content-Type: application/json
+
+## get curso
+GET {{apiurl}}/cursos/1 HTTP/1.1
+
+### inserir curso
+POST {{apiurl}}/cursos HTTP/1.1
+Content-Type: application/json
+
+{
+  "nome": "Bacharelado em Agronomia",
+  "sigla": "Agro",
+  "descricao": "Curso de Agronomia",
+  "id_coordenador":18
+}
+
+### alterar professor
+PUT {{apiurl}}/cursos/8 HTTP/1.1
+Content-Type: application/json
+
+{
+  "nome": "Bacharelado em Agronomia",
+  "sigla": "Agro",
+  "descricao": "Curso de Agronomia e blablabla",
+  "id_coordenador":18
+}
+
+### excluir professor
+DELETE {{apiurl}}/cursos/7 HTTP/1.1
+Content-Type: application/json

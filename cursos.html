@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Cursos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="logo-titulo">
+      <img src="img/logo.png" alt="Logo do IFC" class="logo">
+      <h1 class="titulo">Cadastro de Cursos</h1>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="cursos.html">Cadastro de Cursos</a></li>
+        <li><a href="professores.html">Cadastro de Professores</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <button id="addCurso">Adicionar Curso</button>
+      <table id="cursosTable">
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>Nome do Curso</th>
+            <th>Sigla</th>
+            <th>Descrição</th>
+            <th>Coordenador</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Cursos serão inseridos aqui via JavaScript -->
+        </tbody>
+      </table>
+  </main>
+  <!-- Modal para Adicionar/Editar Curso -->
+  <div id="cursoModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Adicionar/Editar Curso</h2>
+      <form id="cursoForm">
+        <input type="hidden" id="cursoId" name="id" required>
+        <label for="nomeCurso">Nome do Curso:</label>
+        <input type="text" id="nomeCurso" name="nomeCurso" required>
+        <!-- <label for="semestres">Semestres:</label>
+        <input type="number" id="semestres" name="semestres" required> -->
+        <label for="sigla">Sigla:</label>
+        <input type="text" id="sigla" name="sigla" required>
+        <label for="descricao">Descrição:</label>
+        <input type="text" id="descricao" name="descricao" required>
+        <label for="coordenador">Coordenador:</label>
+        <input type="text" id="coordenador" name="coordenador" required>
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+  </div>
+  <script src="cursos.js"></script>
+  <script src="footer.js"></script>
+  <!-- <script>
+    let currentCursoId = null;
+
+    function editCurso(index){
+      const curso = cursos[index];
+      document.getElementById('id').value = curso.id;
+      document.getElementById('nomeCurso').value = curso.nomeCurso;
+      document.getElementById('sigla').value = curso.sigla;
+      document.getElementById('descricao').value = curso.descricao;
+      //document.getElementById('semestres').value = curso.semestres;
+      document.getElementById('coordenador').value = curso.coordenador;
+      currentCursoId = index;
+      openModal('cursoModal');
+    }
+    function deleteCurso(index) {
+      const curso = cursos[index];
+      if(confirm('Tem certeza que deseja excluir este curso?')) {
+          fetch(`http://localhost:3000/cursos/${curso.id}`, {
+            method: 'DELETE'
+          })
+          .then(() => {
+          cursos.splice(index, 1); 
+          renderCursos();
+          });
+        }
+    }
+    // Altera a propriedade display para block, exibindo a modal que estava none
+    function openModal(modalId){
+      document.getElementById(modalId).style.display = 'block';
+    }
+
+    // Altera a propriedade display para none, ocultando a modal
+    function closeModal(modalId){
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Listener para o botão addCurso, vai chamar a openModal()
+    const btAddCurso = document.getElementById('addCurso');
+    btAddCurso.addEventListener('click', function() {
+      currentCursoId = null;
+      document.getElementById('cursoForm').reset();
+      openModal('cursoModal');
+    })
+
+    // Listener para fechar modais
+    document.querySelectorAll('.close').forEach(function(closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        closeModal('cursoModal');
+      })
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    //carrega os cursos como linhas da tabela
+    function renderCursos() {
+      const tbody = document.querySelector('#cursosTable tbody');
+      tbody.innerHTML = '';
+      
+      fetch('http://localhost:3000/cursos')
+        .then(response => response.json())
+        .then(cursos => {
+          curso = cursos
+
+          cursos.forEach((curso, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${curso.id}</td>
+              <td>${curso.nome}</td>
+              <td>${curso.sigla}</td>
+              <td>${curso.descricao}</td>
+              <td>${curso.coordenador}</td>
+              
+              <td>
+                <button onclick="editCurso(${index})">Editar</button>
+                <button onclick="deleteCurso(${index})">Excluir</button>
+              </td>
+              ` ;
+            tbody.appendChild(row);
+          });
+    });   
+
+    }
+
+    function addCurso(id, nomeCurso, sigla, descricao, coordenador) {
+      const novoCurso = { id, nomeCurso, sigla, descricao, coordenador };
+
+      fetch('http://localhost:3000/cursos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(novoCurso)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Adicionado:', data);
+        renderCursos();
+      });
+    }
+
+    document.getElementById('cursoForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const id = document.getElementById('id');
+      const nomeCurso = document.getElementById('nomeCurso').value;
+      const sigla = document.getElementById('sigla').value;
+      //const semestres = document.getElementById('semestres').value;
+      const descricao = document.getElementById('descricao').value;
+      const coordenador = document.getElementById('coordenador').value;
+      //inclusão ou alteração
+
+      if (currentCursoId !== null) {
+        cursos[currentCursoId] = { id, nomeCurso, semestres, coordenador };
+        fetch(`http://localhost:3000/cursos/${curso.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(atualizado)
+        })
+        .then(response => response.json())
+        .then(() => {
+          closeModal('cursoModal');
+          renderCursos();
+        });
+      } else {
+        addCurso(id, nomeCurso, sigla, descricao, coordenador);
+        closeModal('cursoModal');
+      }
+    })
+      renderCursos();
+    });
+    ;
+  </script> -->
+</body>
+</html>
