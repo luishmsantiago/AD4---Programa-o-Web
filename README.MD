@@ -1,1 +1,0 @@
-.ENV não foi adicionado
